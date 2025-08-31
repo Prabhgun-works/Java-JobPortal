@@ -1,0 +1,37 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# MacOS system files
+.DS_Store
+
+# Java build
+target/
+bin/
+build/
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# Logs
+*.log
+
+# Config files with secrets (update accordingly)
+application.properties
+application.yml
+db.properties
+
+# Node (if frontend with React)
+node_modules/
+dist/
+
+# JMeter results
+*.jtl
+*.csv
+*.jmx~
+
+# Postman
+*.postman_collection.json

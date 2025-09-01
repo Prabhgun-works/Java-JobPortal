@@ -1,15 +1,11 @@
 package com.jobportal;
 
-import com.jobportal.controller.UserController;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) {
-        UserController userController = new UserController();
-
-        userController.registerUser(1, "Alice", "alice@example.com");
-        userController.registerUser(2, "Bob", "bob@example.com");
-
-        System.out.println("\nAll users:");
-        userController.showAllUsers();
+        SpringApplication.run(Main.class, args);
     }
 }

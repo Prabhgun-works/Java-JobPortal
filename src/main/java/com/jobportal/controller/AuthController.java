@@ -1,54 +1,90 @@
 package com.jobportal.controller;
 
-import com.jobportal.model.User;
-import com.jobportal.repository.UserRepository;
-import com.jobportal.security.JwtUtil;
 import com.jobportal.dto.LoginRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jobportal.dto.RegisterRequest;
+import com.jobportal.model.User;
+import com.jobportal.service.UserService;
+import com.jobportal.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    // ✅ Register
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // encode password
-        userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+    public AuthController(UserService userService,
+                          AuthenticationManager authenticationManager,
+                          JwtUtil jwtUtil) {
+        this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
-    // ✅ Login (returns JWT token)
+    // ---------------- Register ----------------
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        try {
+            if (!request.getRole().equalsIgnoreCase("CANDIDATE") &&
+                    !request.getRole().equalsIgnoreCase("EMPLOYER") &&
+                    !request.getRole().equalsIgnoreCase("ADMIN")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Role must be CANDIDATE, EMPLOYER, or ADMIN");
+            }
+
+            User user = new User();
+            user.setName(request.getName());
+            user.setEmail(request.getEmail());
+            user.setPassword(request.getPassword()); // will be encoded in service
+            user.setRole(request.getRole().toUpperCase());
+
+            User savedUser = userService.registerUser(user);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User registered successfully");
+            response.put("role", savedUser.getRole());
+            response.put("name", savedUser.getName());
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // ---------------- Login ----------------
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
-            String token = jwtUtil.generateToken(request.getEmail());
-            return ResponseEntity.ok(token);
+
+            // Get the user from DB
+            User user = userService.getUserByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Generate JWT with role included
+            String token = jwtUtil.generateToken(user); // pass the User object
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);         // token for frontend
+            response.put("role", user.getRole()); // role for frontend
+            response.put("name", user.getName()); // optional
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
     }
 }
-

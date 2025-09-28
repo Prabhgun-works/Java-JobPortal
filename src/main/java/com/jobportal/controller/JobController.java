@@ -1,5 +1,6 @@
 package com.jobportal.controller;
 
+import com.jobportal.dto.JobDTO;
 import com.jobportal.model.Job;
 import com.jobportal.model.User;
 import com.jobportal.service.JobService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -24,58 +26,90 @@ public class JobController {
         this.userService = userService;
     }
 
+    // ----------------------------
+    // Candidate + Admin: List all jobs
+    // ----------------------------
     @GetMapping("/jobs")
-    public ResponseEntity<List<Job>> getAllJobs() {
-        return ResponseEntity.ok(jobService.getAllJobs());
+    public ResponseEntity<List<JobDTO>> getAllJobs() {
+        List<JobDTO> dtos = jobService.getAllJobs().stream()
+                .map(JobDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
+    // ----------------------------
+    // Employer: Post a new job
+    // ----------------------------
     @PreAuthorize("hasRole('EMPLOYER')")
     @PostMapping("/employer/post-job")
-    public ResponseEntity<?> postJob(@Valid @RequestBody Job job,
-                                     @RequestHeader("Authorization") String token) {
-        // Remove "Bearer " prefix if exists
-        if (token.startsWith("Bearer ")) token = token.substring(7);
-
-        String email = userService.getEmailFromToken(token);
+    public ResponseEntity<JobDTO> postJob(@Valid @RequestBody JobDTO jobDTO,
+                                          @RequestHeader("Authorization") String token) {
+        String email = extractEmailFromToken(token);
         User employer = userService.getUserByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Employer not found"));
 
+        Job job = jobDTO.toEntity();
         job.setEmployer(employer);
         job.setPostedDate(LocalDate.now());
 
-        Job savedJob = jobService.postJob(job, employer);
-        return ResponseEntity.ok(savedJob);
+        Job saved = jobService.postJob(job, employer);
+        return ResponseEntity.ok(JobDTO.fromEntity(saved));
     }
 
+    // ----------------------------
+    // Employer: List jobs posted by them
+    // ----------------------------
     @PreAuthorize("hasRole('EMPLOYER')")
     @GetMapping("/employer/jobs")
-    public ResponseEntity<List<Job>> getJobsByEmployer(@RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) token = token.substring(7);
-
-        String email = userService.getEmailFromToken(token);
+    public ResponseEntity<List<JobDTO>> getJobsByEmployer(@RequestHeader("Authorization") String token) {
+        String email = extractEmailFromToken(token);
         User employer = userService.getUserByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Employer not found"));
 
-        return ResponseEntity.ok(jobService.getJobsByEmployer(employer));
+        List<JobDTO> dtos = jobService.getJobsByEmployer(employer).stream()
+                .map(JobDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
+    // ----------------------------
+    // Admin: List all jobs
+    // ----------------------------
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/jobs")
-    public ResponseEntity<List<Job>> getAllJobsAdmin() {
-        return ResponseEntity.ok(jobService.getAllJobs());
+    public ResponseEntity<List<JobDTO>> getAllJobsAdmin() {
+        List<JobDTO> dtos = jobService.getAllJobs().stream()
+                .map(JobDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
+    // ----------------------------
+    // Delete a job (Employer or Admin)
+    // ----------------------------
     @PreAuthorize("hasRole('EMPLOYER') or hasRole('ADMIN')")
     @DeleteMapping("/jobs/{jobId}")
-    public ResponseEntity<?> deleteJob(@PathVariable int jobId) {
+    public ResponseEntity<String> deleteJob(@PathVariable int jobId,
+                                            @RequestHeader(value = "Authorization", required = false) String token) {
         jobService.deleteJob(jobId);
         return ResponseEntity.ok("Job deleted successfully");
     }
 
+    // ----------------------------
+    // Get job by ID (any authenticated user)
+    // ----------------------------
     @GetMapping("/jobs/{jobId}")
-    public ResponseEntity<Job> getJobById(@PathVariable int jobId) {
-        return jobService.getJobById(jobId)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<JobDTO> getJobById(@PathVariable int jobId) {
+        Job job = jobService.getJobById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
+        return ResponseEntity.ok(JobDTO.fromEntity(job));
+    }
+
+    // ----------------------------
+    // Helper: Extract email from token
+    // ----------------------------
+    private String extractEmailFromToken(String token) {
+        if (token.startsWith("Bearer ")) token = token.substring(7);
+        return userService.getEmailFromToken(token);
     }
 }

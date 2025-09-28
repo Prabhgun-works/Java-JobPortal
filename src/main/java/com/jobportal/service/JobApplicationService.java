@@ -11,15 +11,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.List;
+
 @Service
 public class JobApplicationService {
 
     private final JobApplicationRepository applicationRepository;
     private final JobRepository jobRepository;
 
-    // Better to use absolute path
     private final String uploadDir = System.getProperty("user.dir") + "/resumes/";
 
     public JobApplicationService(JobApplicationRepository applicationRepository,
@@ -27,11 +28,8 @@ public class JobApplicationService {
         this.applicationRepository = applicationRepository;
         this.jobRepository = jobRepository;
 
-        // Create folder if not exists
         File folder = new File(uploadDir);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
+        if (!folder.exists()) folder.mkdirs();
     }
 
     public JobApplication applyToJob(User candidate, int jobId, MultipartFile resumeFile) throws IOException {
@@ -45,7 +43,7 @@ public class JobApplicationService {
         JobApplication application = new JobApplication();
         application.setCandidate(candidate);
         application.setJob(job);
-        application.setResume(fileName);
+        application.setResume(fileName);   // store filename only
         application.setStatus("PENDING");
         application.setAppliedDate(LocalDate.now());
 
@@ -72,5 +70,24 @@ public class JobApplicationService {
 
         application.setStatus(status.toUpperCase());
         return applicationRepository.save(application);
+    }
+
+    public List<JobApplication> getApplicationsByJob(Job job) {
+        return applicationRepository.findByJob(job);
+    }
+
+    // ---------- New: Get resume bytes ----------
+    public byte[] getResumeBytes(String fileName) {
+        try {
+            File file = new File(uploadDir + fileName);
+            if (!file.exists()) throw new ResourceNotFound("Resume file not found: " + fileName);
+            return Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read resume file", e);
+        }
+    }
+
+    public java.util.Optional<JobApplication> getApplicationById(int applicationId) {
+        return applicationRepository.findById(applicationId);
     }
 }

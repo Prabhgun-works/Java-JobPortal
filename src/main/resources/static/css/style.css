@@ -68,6 +68,13 @@ button:hover {
   background: #219150;
 }
 
+button.applyBtn, button.statusBtn {
+  width: auto;
+  padding: 5px 10px;
+  margin-left: 10px;
+  font-size: 0.9em;
+}
+
 a {
   color: #27ae60;
   text-decoration: none;
@@ -82,15 +89,18 @@ h3 {
   color: #34495e;
 }
 
+/* Scrollable containers */
 #candidateJobs, #candidateApplications,
 #employerJobs, #employerApplications,
-#allUsers, #allJobs, #allApplications, #statistics {
+#allUsers, #allJobs, #allApplications, #adminStats {
   border: 1px solid #ccc;
   padding: 10px;
   min-height: 50px;
   background: #fafafa;
   border-radius: 5px;
   margin-bottom: 10px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .dashboard div {
@@ -102,8 +112,19 @@ h3 {
   border-bottom: none;
 }
 
-button.applyBtn, button.statusBtn {
-  padding: 5px 10px;
+/* Inline file input + apply button in candidate job list */
+.job-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.job-card input[type="file"] {
+  width: 60%;
+}
+
+.job-card button.applyBtn {
+  width: auto;
   margin-left: 10px;
-  font-size: 0.9em;
 }

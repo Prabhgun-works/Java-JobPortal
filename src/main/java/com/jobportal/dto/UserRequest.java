@@ -21,7 +21,6 @@ public class UserRequest {
     @Pattern(regexp = "CANDIDATE|EMPLOYER", message = "Role must be CANDIDATE or EMPLOYER")
     private String role;
 
-    // Getters & Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

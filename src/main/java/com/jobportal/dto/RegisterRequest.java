@@ -20,7 +20,6 @@ public class RegisterRequest {
     @Pattern(regexp = "CANDIDATE|EMPLOYER|ADMIN", message = "Role must be CANDIDATE, EMPLOYER, or ADMIN")
     private String role;
 
-    // Getters & Setters
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 

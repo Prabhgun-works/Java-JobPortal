@@ -1,6 +1,5 @@
 let token = localStorage.getItem("token");
 
-// ---------- UI helpers ----------
 function showLogin() {
   document.getElementById("loginSection").style.display = "block";
   document.getElementById("registerSection").style.display = "none";
@@ -16,7 +15,6 @@ function logout() {
   document.querySelectorAll(".dashboard").forEach(d => d.style.display = "none");
 }
 
-// ---------- Auth ----------
 document.getElementById("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
@@ -58,7 +56,6 @@ document.getElementById("registerForm").addEventListener("submit", async e => {
   else alert("Registration failed");
 });
 
-// ---------- Candidate: upload resume ----------
 document.getElementById("resumeForm").addEventListener("submit", async e => {
   e.preventDefault();
   const formData = new FormData(e.target);
@@ -71,7 +68,6 @@ document.getElementById("resumeForm").addEventListener("submit", async e => {
   else alert("Resume upload failed");
 });
 
-// ---------- Employer: post job ----------
 document.getElementById("postJobForm").addEventListener("submit", async e => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
@@ -83,7 +79,6 @@ document.getElementById("postJobForm").addEventListener("submit", async e => {
   if (res.ok) { alert("Job posted"); loadEmployerJobs(); } else alert("Job post failed");
 });
 
-// ---------- Candidate: list jobs ----------
 async function loadCandidateJobs() {
   try {
     const res = await fetch("/api/jobs", { headers: { "Authorization": "Bearer " + token }});
@@ -109,7 +104,6 @@ async function loadCandidateJobs() {
   }
 }
 
-// ---------- Candidate: apply ----------
 async function applyJob(jobId) {
   const resumeInput = document.querySelector(`#resumeForJob-${jobId}`);
   if (!resumeInput || resumeInput.files.length === 0) {
@@ -133,7 +127,6 @@ async function applyJob(jobId) {
   }
 }
 
-// ---------- Candidate: applications (remove resume link) ----------
 async function loadCandidateApplications() {
   const res = await fetch("/api/candidate/applications", { headers: { "Authorization": "Bearer " + token }});
   if (!res.ok) return;
@@ -147,7 +140,7 @@ async function loadCandidateApplications() {
   });
 }
 
-// ---------- Employer: jobs & applications ----------
+
 async function loadEmployerJobs() {
   try {
     const res = await fetch("/api/employer/jobs", { headers: { "Authorization": "Bearer " + token }});
@@ -179,7 +172,6 @@ async function deleteJob(jobId) {
   if (res.ok) { alert("Deleted"); loadEmployerJobs(); } else alert("Delete failed");
 }
 
-// ---------- Employer: show applications (resume download via fetch + blob) ----------
 async function showJobApplications(jobId) {
   const res = await fetch(`/api/jobs/${jobId}/applications`, { headers: { "Authorization": "Bearer " + token }});
   if (!res.ok) { alert("Failed to load applications"); return; }
@@ -219,7 +211,6 @@ async function downloadResume(applicationId) {
   }
 }
 
-// ---------- Update application status ----------
 async function updateApplicationStatus(appId, status, jobId) {
   const res = await fetch(`/api/applications/${appId}/status?status=${encodeURIComponent(status)}`, {
     method: "PUT",
@@ -229,7 +220,6 @@ async function updateApplicationStatus(appId, status, jobId) {
   else alert("Update failed");
 }
 
-// ---------- Admin ----------
 async function loadAdminData() {
   const endpoints = [
     { url: "/api/admin/users", container: "allUsers", map: item => `<b>${escapeHtml(item.name)}</b> (${escapeHtml(item.role)})` },
@@ -255,7 +245,6 @@ async function loadAdminData() {
   }
 }
 
-// ---------- Helpers ----------
 function escapeHtml(s) {
   if (!s) return "";
   return s.replaceAll('&', '&amp;')

@@ -28,12 +28,10 @@ public class User {
     @NotBlank(message = "Role is required")
     private String role; // "CANDIDATE", "EMPLOYER", "ADMIN"
 
-    // For candidates: list of job applications
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore // ignore applications when sending User data
     private Set<JobApplication> applications;
 
-    // For employers: list of posted jobs
     @OneToMany(mappedBy = "employer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore // ignore postedJobs when sending User data
     private Set<Job> postedJobs;
@@ -46,8 +44,6 @@ public class User {
         this.password = password;
         this.role = role;
     }
-
-    // Getters & Setters
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

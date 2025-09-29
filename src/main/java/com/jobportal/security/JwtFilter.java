@@ -38,12 +38,10 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Extract role from JWT
             String role = jwtUtil.extractRoles(token); // e.g., "ROLE_EMPLOYER"
 
             SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
 
-            // Set authentication with role from JWT
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
                             username,

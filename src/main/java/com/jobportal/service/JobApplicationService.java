@@ -76,7 +76,6 @@ public class JobApplicationService {
         return applicationRepository.findByJob(job);
     }
 
-    // ---------- New: Get resume bytes ----------
     public byte[] getResumeBytes(String fileName) {
         try {
             File file = new File(uploadDir + fileName);

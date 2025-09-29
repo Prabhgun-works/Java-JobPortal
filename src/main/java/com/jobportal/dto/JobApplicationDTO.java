@@ -16,7 +16,6 @@ public class JobApplicationDTO {
 
     public JobApplicationDTO() {}
 
-    // Convert entity to DTO
     public static JobApplicationDTO fromEntity(JobApplication app) {
         JobApplicationDTO dto = new JobApplicationDTO();
         dto.setId(app.getId());
@@ -29,7 +28,6 @@ public class JobApplicationDTO {
         return dto;
     }
 
-    // Getters & Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

@@ -26,9 +26,6 @@ public class JobController {
         this.userService = userService;
     }
 
-    // ----------------------------
-    // Candidate + Admin: List all jobs
-    // ----------------------------
     @GetMapping("/jobs")
     public ResponseEntity<List<JobDTO>> getAllJobs() {
         List<JobDTO> dtos = jobService.getAllJobs().stream()
@@ -37,9 +34,6 @@ public class JobController {
         return ResponseEntity.ok(dtos);
     }
 
-    // ----------------------------
-    // Employer: Post a new job
-    // ----------------------------
     @PreAuthorize("hasRole('EMPLOYER')")
     @PostMapping("/employer/post-job")
     public ResponseEntity<JobDTO> postJob(@Valid @RequestBody JobDTO jobDTO,
@@ -56,9 +50,6 @@ public class JobController {
         return ResponseEntity.ok(JobDTO.fromEntity(saved));
     }
 
-    // ----------------------------
-    // Employer: List jobs posted by them
-    // ----------------------------
     @PreAuthorize("hasRole('EMPLOYER')")
     @GetMapping("/employer/jobs")
     public ResponseEntity<List<JobDTO>> getJobsByEmployer(@RequestHeader("Authorization") String token) {
@@ -72,9 +63,6 @@ public class JobController {
         return ResponseEntity.ok(dtos);
     }
 
-    // ----------------------------
-    // Admin: List all jobs
-    // ----------------------------
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/jobs")
     public ResponseEntity<List<JobDTO>> getAllJobsAdmin() {
@@ -84,9 +72,6 @@ public class JobController {
         return ResponseEntity.ok(dtos);
     }
 
-    // ----------------------------
-    // Delete a job (Employer or Admin)
-    // ----------------------------
     @PreAuthorize("hasRole('EMPLOYER') or hasRole('ADMIN')")
     @DeleteMapping("/jobs/{jobId}")
     public ResponseEntity<String> deleteJob(@PathVariable int jobId,
@@ -95,9 +80,6 @@ public class JobController {
         return ResponseEntity.ok("Job deleted successfully");
     }
 
-    // ----------------------------
-    // Get job by ID (any authenticated user)
-    // ----------------------------
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<JobDTO> getJobById(@PathVariable int jobId) {
         Job job = jobService.getJobById(jobId)
@@ -105,9 +87,6 @@ public class JobController {
         return ResponseEntity.ok(JobDTO.fromEntity(job));
     }
 
-    // ----------------------------
-    // Helper: Extract email from token
-    // ----------------------------
     private String extractEmailFromToken(String token) {
         if (token.startsWith("Bearer ")) token = token.substring(7);
         return userService.getEmailFromToken(token);

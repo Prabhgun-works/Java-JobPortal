@@ -19,7 +19,6 @@ public class JobService {
         this.jobRepository = jobRepository;
     }
 
-    // Post a new job (by employer)
     @Transactional
     public Job postJob(Job job, User employer) {
         job.setEmployer(employer);
@@ -27,22 +26,18 @@ public class JobService {
     }
 
 
-    // Get all jobs
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
     }
 
-    // Get jobs by employer
     public List<Job> getJobsByEmployer(User employer) {
         return jobRepository.findByEmployer(employer);
     }
 
-    // Get job by ID
     public Optional<Job> getJobById(int id) {
         return jobRepository.findById(id);
     }
 
-    // Delete a job by ID
     public void deleteJob(int id) {
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("Job not found with id: " + id));

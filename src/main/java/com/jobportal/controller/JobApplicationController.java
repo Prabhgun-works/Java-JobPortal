@@ -35,9 +35,6 @@ public class JobApplicationController {
         this.userService = userService;
     }
 
-    // ----------------- Candidate -----------------
-
-    // Candidate applies for a job
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("/candidate/apply/{jobId}")
     public ResponseEntity<JobApplicationDTO> applyForJob(@PathVariable int jobId,
@@ -52,8 +49,6 @@ public class JobApplicationController {
         JobApplication application = applicationService.applyToJob(candidate, jobId, resume);
         return ResponseEntity.ok(JobApplicationDTO.fromEntity(application));
     }
-
-    // Candidate views their applications
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping("/candidate/applications")
     public ResponseEntity<List<JobApplicationDTO>> getMyApplications(@RequestHeader("Authorization") String token) {
@@ -67,9 +62,6 @@ public class JobApplicationController {
         return ResponseEntity.ok(dtos);
     }
 
-    // ----------------- Employer -----------------
-
-    // Employer views all applications for their jobs
     @PreAuthorize("hasRole('EMPLOYER')")
     @GetMapping("/employer/applications")
     public ResponseEntity<List<JobApplicationDTO>> getEmployerApplications(@RequestHeader("Authorization") String token) {
@@ -83,7 +75,6 @@ public class JobApplicationController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Get applications for a specific job (per-job for employer/admin)
     @PreAuthorize("hasRole('EMPLOYER') or hasRole('ADMIN')")
     @GetMapping("/jobs/{jobId}/applications")
     public ResponseEntity<List<JobApplicationDTO>> getApplicationsForJob(@PathVariable int jobId) {
@@ -94,7 +85,6 @@ public class JobApplicationController {
         return ResponseEntity.ok(dtos);
     }
 
-    // Employer/Admin updates application status
     @PreAuthorize("hasRole('EMPLOYER') or hasRole('ADMIN')")
     @PutMapping("/applications/{applicationId}/status")
     public ResponseEntity<JobApplicationDTO> updateApplicationStatus(@PathVariable int applicationId,
@@ -107,9 +97,7 @@ public class JobApplicationController {
         return ResponseEntity.ok(JobApplicationDTO.fromEntity(updated));
     }
 
-    // ----------------- Admin -----------------
 
-    // Admin views all applications
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/applications")
     public ResponseEntity<List<JobApplicationDTO>> getAllApplications() {
@@ -118,9 +106,6 @@ public class JobApplicationController {
         return ResponseEntity.ok(dtos);
     }
 
-    // ----------------- Resume Download -----------------
-
-    // Candidate / Employer / Admin can download resume
     @PreAuthorize("hasRole('CANDIDATE') or hasRole('EMPLOYER') or hasRole('ADMIN')")
     @GetMapping("/applications/{applicationId}/resume")
     public ResponseEntity<ByteArrayResource> downloadResume(@PathVariable int applicationId) {

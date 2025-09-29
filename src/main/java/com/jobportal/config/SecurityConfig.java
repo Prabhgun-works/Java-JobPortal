@@ -27,7 +27,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
@@ -37,27 +36,14 @@ public class SecurityConfig {
                     return corsConfig;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        // Static frontend resources
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**").permitAll()
-
-                        // Open endpoints (login/register)
                         .requestMatchers("/api/auth/**").permitAll()
-
-                        // Candidate endpoints
                         .requestMatchers("/api/candidate/**").hasRole("CANDIDATE")
-
-                        // Employer endpoints
                         .requestMatchers("/api/employer/**").hasRole("EMPLOYER")
-
-                        // Admin endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                        // Fallback: any other request requires authentication
                         .anyRequest().authenticated()
                 )
-                // Stateless session (JWT)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // JWT filter before Spring Security authentication
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -65,7 +51,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // password hashing
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

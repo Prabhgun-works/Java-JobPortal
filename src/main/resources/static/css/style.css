@@ -89,7 +89,7 @@ h3 {
   color: #34495e;
 }
 
-/* Scrollable containers */
+
 #candidateJobs, #candidateApplications,
 #employerJobs, #employerApplications,
 #allUsers, #allJobs, #allApplications, #adminStats {
@@ -112,7 +112,7 @@ h3 {
   border-bottom: none;
 }
 
-/* Inline file input + apply button in candidate job list */
+
 .job-card {
   display: flex;
   align-items: center;

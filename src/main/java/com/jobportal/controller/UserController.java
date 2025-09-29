@@ -28,7 +28,6 @@ public class UserController {
         this.applicationService = applicationService;
     }
 
-    // ✅ Get all users (Admin only)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -36,7 +35,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // ✅ Get user by ID (Admin only)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
@@ -45,7 +43,6 @@ public class UserController {
                 .orElseThrow(() -> new ResourceNotFound("User not found with id: " + id));
     }
 
-    // ✅ Admin statistics: number of users, jobs, applications
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/statistics")
     public ResponseEntity<List<Statistics>> getStatistics() {
@@ -55,8 +52,6 @@ public class UserController {
         stats.add(new Statistics("Applications", (long) applicationService.getAllApplications().size()));
         return ResponseEntity.ok(stats);
     }
-
-    // DTO for statistics
     public static class Statistics {
         private String label;
         private Long value;

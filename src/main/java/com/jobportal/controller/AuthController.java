@@ -31,7 +31,6 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
-    // ---------------- Register ----------------
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         try {
@@ -61,7 +60,6 @@ public class AuthController {
         }
     }
 
-    // ---------------- Login ----------------
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
@@ -69,17 +67,15 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
 
-            // Get the user from DB
             User user = userService.getUserByEmail(request.getEmail())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Generate JWT with role included
-            String token = jwtUtil.generateToken(user); // pass the User object
+            String token = jwtUtil.generateToken(user);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("token", token);         // token for frontend
-            response.put("role", user.getRole()); // role for frontend
-            response.put("name", user.getName()); // optional
+            response.put("token", token);
+            response.put("role", user.getRole());
+            response.put("name", user.getName());
 
             return ResponseEntity.ok(response);
 

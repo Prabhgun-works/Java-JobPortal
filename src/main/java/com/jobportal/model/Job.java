@@ -27,13 +27,11 @@ public class Job {
 
     private LocalDate postedDate;
 
-    // The employer who posted the job
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employer_id")
     @JsonIgnoreProperties({"applications", "password", "postedJobs"})
     private User employer;
 
-    // List of applications for this job (ignore in Job JSON)
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<JobApplication> applications;
@@ -48,7 +46,6 @@ public class Job {
         this.employer = employer;
     }
 
-    // Getters & Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
